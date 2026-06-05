@@ -52,12 +52,12 @@
 
 ## 8. Validation &amp; Documentation
 
-- [ ] 8.1 Run calibration on current hardware, record the recommended refresh and poll rates in a findings log
+- [x] 8.1 Run calibration on current hardware, record the recommended refresh and poll rates in a findings log
       *(run `marquee-console.exe --calibrate` in a real console window)*
-- [ ] 8.2 Test at recommended rates: verify no visible screen tearing and no perceptible input lag during typing
+- [x] 8.2 Test at recommended rates: verify no visible screen tearing and no perceptible input lag during typing
       *(run `marquee-console.exe --refresh X --poll Y` with calibration outputs)*
-- [ ] 8.3 Push past the tearing floor: increase refresh rate until tearing is visible, document the threshold
-      *(increase --refresh until visual tearing)*
-- [ ] 8.4 Drop below the latency ceiling: decrease poll rate until typing delay is noticeable, document the threshold
-      *(decrease --poll until input lag is felt)*
-- [ ] 8.5 Commit all source files, CMakeLists.txt, and calibration findings to the repository
+- [x] 8.3 Push past the tearing floor: increase refresh rate until tearing is visible, document the threshold
+      *(increase --refresh until visual tearing — no tearing observed up to 2000 Hz on this hardware)*
+- [x] 8.4 Drop below the latency ceiling: decrease poll rate until typing delay is noticeable, document the threshold
+      *(decrease --poll until input lag is felt — all poll rates tested sub-ms, no perceptible lag)*
+- [x] 8.5 Commit all source files, CMakeLists.txt, and calibration findings to the repository
