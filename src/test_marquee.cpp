@@ -144,33 +144,65 @@ int main()
             report("marquee_init registers callback", eng.frame_callback == marquee_on_frame);
         }
 
-        // Test 11: marquee renders content
+        // Test 11: Nyan Cat rainbow wave trail leaves scattered colors
         {
             marquee_on_frame(eng.back_buffer, 16.0, eng.buffer_size);
-            size_t len = wcslen(L"[MARQUEE PLACEHOLDER]");
-            int start_x = (eng.buffer_size.X - (SHORT)len) / 2;
-            if (start_x < 0) start_x = 0;
-            int y = eng.buffer_size.Y / 2;
-            size_t idx = (size_t)y * (size_t)eng.buffer_size.X + (size_t)start_x;
-            bool ok = (eng.back_buffer[idx].Char.UnicodeChar == L'[' &&
-                       eng.back_buffer[idx].Attributes == (FOREGROUND_GREEN | FOREGROUND_INTENSITY));
-            report("marquee renders centered in bright green", ok);
+            int W = eng.buffer_size.X;
+            int H = eng.buffer_size.Y;
+            (void)H;
+            int cat_x = (W - 30) / 2;
+            int cat_top = (H - 11) / 2;
+            int center_y = cat_top + 11 / 2;
+
+            // Scan first few columns near the wave trail center
+            bool found = false;
+            for (int x = 0; x < 10 && x < cat_x; ++x)
+            {
+                for (int dy = -3; dy <= 3; ++dy)
+                {
+                    int y = center_y + dy;
+                    if (y < 0 || y >= H) continue;
+                    size_t idx = (size_t)y * (size_t)W + (size_t)x;
+                    WORD bg = eng.back_buffer[idx].Attributes
+                              & (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
+                    if (bg != 0) found = true;
+                }
+            }
+            report("nyan cat rainbow wave trail leaves scattered colors", found);
         }
 
-        // Test 12: hardware fingerprint (no crash)
+        // Test 12: cat area has no rainbow (clear background)
+        {
+            int W = eng.buffer_size.X;
+            int H = eng.buffer_size.Y;
+            (void)H;
+            int cat_x = (W - 30) / 2;
+            int cat_top = (H - 11) / 2;
+            bool clear = true;
+            if (cat_x < W)
+            {
+                size_t idx = (size_t)cat_top * (size_t)W + (size_t)cat_x;
+                WORD bg = eng.back_buffer[idx].Attributes
+                          & (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
+                clear = (bg == 0);
+            }
+            report("cat area has no rainbow overlay", clear);
+        }
+
+        // Test 13: hardware fingerprint (no crash)
         {
             calibrate_hardware_fingerprint(&eng);
             report("calibrate_hardware_fingerprint", true);
         }
 
-        // Test 13: out-of-bounds set_pixel (no crash)
+        // Test 14: out-of-bounds set_pixel (no crash)
         {
             engine_set_pixel(&eng, -1, 0, L'X', 0);
             engine_set_pixel(&eng, 9999, 9999, L'X', 0);
             report("out-of-bounds set_pixel no crash", true);
         }
 
-        // Test 14: rate clamping
+        // Test 15: rate clamping
         {
             engine_set_refresh_rate(&eng, 0);
             double min_ticks = (double)eng.qpc_frequency.QuadPart / 1.0;

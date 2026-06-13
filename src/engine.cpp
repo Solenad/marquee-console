@@ -40,6 +40,14 @@ int engine_init(ConsoleEngine* eng)
         eng->back_buffer[i]  = default_cell;
     }
 
+    // Hide cursor (save original state first)
+    GetConsoleCursorInfo(eng->console_handle, &eng->original_cursor);
+    {
+        CONSOLE_CURSOR_INFO hidden = eng->original_cursor;
+        hidden.bVisible = FALSE;
+        SetConsoleCursorInfo(eng->console_handle, &hidden);
+    }
+
     // QPC init
     QueryPerformanceFrequency(&eng->qpc_frequency);
     QueryPerformanceCounter(&eng->last_frame_time);
@@ -58,6 +66,22 @@ int engine_init(ConsoleEngine* eng)
 
 void engine_cleanup(ConsoleEngine* eng)
 {
+    // Restore cursor visibility
+    SetConsoleCursorInfo(eng->console_handle, &eng->original_cursor);
+
+    // Clear the console screen
+    COORD topLeft = { 0, 0 };
+    DWORD written;
+    FillConsoleOutputCharacterW(
+        eng->console_handle, L' ',
+        (DWORD)eng->buffer_size.X * (DWORD)eng->buffer_size.Y,
+        topLeft, &written);
+    FillConsoleOutputAttribute(
+        eng->console_handle, 0,
+        (DWORD)eng->buffer_size.X * (DWORD)eng->buffer_size.Y,
+        topLeft, &written);
+    SetConsoleCursorPosition(eng->console_handle, topLeft);
+
     delete[] eng->front_buffer;
     delete[] eng->back_buffer;
     eng->front_buffer = nullptr;

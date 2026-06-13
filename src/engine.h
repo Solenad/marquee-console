@@ -30,6 +30,9 @@ struct ConsoleEngine {
 
     // Cached console info
     CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+    // Original cursor state (restored on cleanup)
+    CONSOLE_CURSOR_INFO original_cursor;
 };
 
 // Engine lifecycle
